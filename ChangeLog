@@ -1,0 +1,96 @@
+2.1
+*修正配置文件里的charset不生效的bug
+*修正update/delete分多张子表的bug
+*增加对MySQL Workbench, Navicat, SQLyog的支持
+*SQL日志里增加端口信息
+*改为每个工作线程一个消息队列
+*去除配置文件里的admin-lua-script项
+*配置文件里的instance项可不设置
+*主库可作为一台从库使用
+*屏蔽不带WHERE条件的UPDATE语句
+
+2.0.5
+*连接失败时将unknown状态的DB置为down
+*将COM_SET_OPTION优先发往从库
+*从admin.lua里移除uuid和connected_clients
+
+2.0.4
+*修正SET CHARACTER_[CLIENT|RESULTS|CONNECTION]的bug
+
+2.0.3
+*支持客户端在连接时指定默认字符集
+
+2.0.2
+*检测线程只检测状态为down的DB
+*处于事务状态的客户端退出时，Atlas销毁该客户端使用的连接
+
+2.0.1
+*Java不能接受handshake包的随机串内包含负数，将随机串的每个字节的范围限定为[1,127]
+
+2.0.0
+*实现了Atlas自行向DB建立连接，而不再依赖客户端的连接动作，并且把连接池由队列结构改为栈结构，带来的好处：
+	**支持了长连接
+	**不再需要min-idle-connections参数
+	**连接池内的连接数可随着客户端并发量的上升而增长，且在并发量下降后自动销毁多余连接(依靠DB的wait_timeout)
+*SQL日志增加了开关，可以设为关闭(OFF)、打开(ON)、实时(REALTIME)三种，默认为OFF，REALTIME用于观察调试
+	**OFF代表不记录SQL日志
+	**ON代表记录SQL日志，由操作系统定期写入磁盘
+	**REALTIME代表记录SQL日志，每记录一条都实时写入磁盘
+*启动脚本修改，在启动失败时可以报出错误信息
+*去除了配置文件的mode必须低于660的限制
+*检测线程不再将DB状态设为down，而是只在DB恢复后将其状态设为up，以此避免网络抖动引发的误将DB下线操作，减少无谓的lost connection
+*修正管理接口无法识别含有多个空格的语句的bug
+*去除全局保存的con结构队列，提升性能
+*不再判断is_insert_id，提升性能
+
+0.7.0 - 
+
+  chassis
+  * added a error-msg if trailing options without dashes are specified
+  * added config-file support that maps cmdline options to configfile options
+  * added support for SIGHUP to reopen logfiles
+  * added win32-service support
+  * added --basedir
+  * added experimental --log-backtrace-on-crash
+  * added DTrace probes
+  * added a angel to keep the chassis alive
+  * added --user option to change the system user the proxy runs as
+
+  proxy-core
+  * added buffered IO on unix
+  * added lua-scope that is shared between the plugins
+  * added a option to disable COM_CHANGE_USER on connection reuse
+  * added handling of the 4.0 auth packets
+  * added parser for master.info files
+  * replaced assertions in protocol decoders by proper error-codes
+  * fixed assertions when COM_TIME, COM_PROCESS_INFO or COM_DEBUG are received
+
+  lua layer
+  * added unit-testing for the lua scripts
+  * fixed tutorial-inject.lua to start indexing at 1 (#32088)
+  * expose chassis_log_* functions to lua
+  * added the posix and lpeg module from luaforge
+  * use the LPEG lua-module to parse statements
+  * added memory profiling
+  * added { resultset_is_needed = false } as default
+  * moved proxy.backends.* to proxy.global.backends.*
+  * added a lua-wrapper around some glib-2.0 functions
+  * added a script cache
+  * removed explicit call to lua_gc() to improve the speed
+
+  Proxy Plugin
+  * track rows and bytes of a resultset
+  * fixed quoting of SQL commands like COMMIT and ROLLBACK
+  * added test-cases for connection-pooling, fail-over, ...
+  * refactored the SQL tokenizer into a lua module
+  * fixed handling -- comments in the SQL tokenizer
+  * fixed backend state cache
+
+  Admin Plugin
+  * replaced the hardcoded admin commands by a lua script interface
+  * added authentication support
+
+  Debug Plugin
+  * return "number" as DOUBLE or INTs
+
+
